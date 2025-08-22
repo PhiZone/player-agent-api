@@ -17,6 +17,7 @@ export const setupSocketIO = (
   });
 
   io.on('connection', (socket) => {
+    console.log(`Socket ${socket.id} connected.`);
     const joinedRooms = new Set<string>();
 
     socket.on('disconnect', () => {

@@ -135,7 +135,7 @@ export class GitHub {
     });
     console.log(`[GitHub] Requested run ${hrid} on ${agent.owner}/${agent.repo}`);
 
-    return { objectId, hrid, queueSize, queueTime };
+    return { queueSize, queueTime };
   }
 }
 

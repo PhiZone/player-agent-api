@@ -44,6 +44,7 @@ class Database {
         .find({
           user: `${prefix}/${query.user}`
         })
+        .sort({ dateCreated: -1 })
         .skip(query.page ? (query.page - 1) * query.limit : 0)
         .limit(query.limit || 20)
         .toArray()

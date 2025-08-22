@@ -45,8 +45,8 @@ app.openapi(NewRun, async (c) => {
     return c.json(currentRun, 409);
   }
   const { objectId, runId } = await db.createRun(run, { name: client.name, prefix });
-  const response = await github.requestRun(run, objectId, runId);
-  return c.json(response, 201);
+  const { queueSize, queueTime } = await github.requestRun(run, objectId, runId);
+  return c.json({ objectId, runId, prefix, queueSize, queueTime }, 201);
 });
 
 app.openapi(GetRuns, async (c) => {

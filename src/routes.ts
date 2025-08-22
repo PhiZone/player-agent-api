@@ -29,8 +29,11 @@ export const NewRun = createRoute({
             objectId: z.string().openapi({
               description: 'Object ID of the run'
             }),
-            hrid: z.string().openapi({
+            runId: z.string().openapi({
               description: 'Human-readable ID of the run'
+            }),
+            prefix: z.string().openapi({
+              description: 'Prefix of the user identifier'
             }),
             queueSize: z.number().openapi({
               description: 'Number of runs in the queue',
