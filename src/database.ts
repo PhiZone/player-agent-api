@@ -50,10 +50,17 @@ class Database {
     };
   }
 
-  async getRun(id: string, user?: string, prefix?: string) {
+  async getRun(id: string | ObjectId, user?: string, prefix?: string) {
     const runsCollection = this.collection<Run>('runs');
+    try {
+      if (typeof id === 'string') {
+        id = new ObjectId(id);
+      }
+    } catch {
+      // Ignore parse errors
+    }
     return await runsCollection
-      .find({ $or: [{ _id: new ObjectId(id) }, { id, user: `${prefix}/${user}` }] })
+      .find(typeof id === 'string' ? { id, user: `${prefix}/${user}` } : { _id: id })
       .sort({ dateCreated: -1 })
       .limit(1)
       .next();
