@@ -76,6 +76,7 @@ const downloadArtifactWithProgress = async (
 const extractAndUploadFiles = async (
   zipBuffer: Buffer,
   key: string,
+  hrid: string,
   target: string
 ): Promise<Array<{ name: string; url: string }>> => {
   const directory = await unzipper.Open.buffer(zipBuffer);
@@ -83,7 +84,7 @@ const extractAndUploadFiles = async (
 
   for (const file of directory.files) {
     if (file.type === 'File') {
-      const name = file.path.replace(/\//g, ' @ ');
+      const name = `[${hrid}] ${file.path.replace(/\//g, ' @ ')}`;
       const started = new Date();
       const url = await upload(name, await file.buffer(), (progress) => {
         report(key, {
@@ -158,10 +159,11 @@ export const processWebhook = async (
       throw new Error('Unable to obtain artifact download URL');
     }
 
-    const zipBuffer = await downloadArtifactWithProgress(response.url, key, webhook.target);
-    const outputFiles = await extractAndUploadFiles(zipBuffer, key, webhook.target);
-
     const run = await getRun(params.id);
+
+    const zipBuffer = await downloadArtifactWithProgress(response.url, key, webhook.target);
+    const outputFiles = await extractAndUploadFiles(zipBuffer, key, run.id, webhook.target);
+
     run.outputFiles = outputFiles;
     run.status = payload.status;
     run.dateCompleted = new Date();
