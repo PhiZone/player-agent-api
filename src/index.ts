@@ -15,7 +15,7 @@ const authenticate = (c: Context) => {
   const token = c.req.header('Authorization')?.replace('Bearer ', '');
   if (token) {
     const [prefix, ...rest] = token.split('/');
-    const secret = rest.join('/');
+    const secret = token.includes('/') ? rest.join('/') : token;
 
     const client = config.clients.find(
       (client) => client.secret === secret && client.prefixes.includes(prefix)
