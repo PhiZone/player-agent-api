@@ -114,7 +114,7 @@ export class GitHub {
           ...run.input.chartFiles,
           ...[run.input.respack || config.defaultRespack]
         ]),
-        mediaOptions: JSON.stringify(run.mediaOptions),
+        mediaOptions: JSON.stringify({ ...run.mediaOptions, vsync: true }),
         preferences: JSON.stringify({
           ...run.preferences,
           aspectRatio: null
