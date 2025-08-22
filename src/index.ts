@@ -14,11 +14,12 @@ import { io, setupSocketIO } from './socketio.js';
 const authenticate = (c: Context) => {
   const token = c.req.header('Authorization')?.replace('Bearer ', '');
   if (token) {
+    const isPrefixed = token.includes('/');
     const [prefix, ...rest] = token.split('/');
-    const secret = token.includes('/') ? rest.join('/') : token;
+    const secret = isPrefixed ? rest.join('/') : token;
 
     const client = config.clients.find(
-      (client) => client.secret === secret && client.prefixes.includes(prefix)
+      (client) => client.secret === secret && (!isPrefixed || client.prefixes.includes(prefix))
     );
     return {
       client,
