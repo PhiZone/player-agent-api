@@ -87,11 +87,12 @@ const extractAndUploadFiles = async (
       const started = new Date();
       const lcFile = await new AV.File(fileName, await file.buffer()).save({
         keepFileName: true,
-        onprogress: (progress) => {
+        onprogress: ({ loaded, total }) => {
+          const percentage = loaded / total;
           report(key, {
             status: 'uploading_to_oss',
-            progress: progress.percent,
-            eta: eta(started, progress.percent),
+            progress: percentage,
+            eta: eta(started, percentage),
             target
           });
         }
@@ -145,6 +146,9 @@ export const processWebhook = async (
     } else {
       webhook.dateStarted = new Date();
     }
+  } else if (payload.progress === 0 && webhook.dateStarted) {
+    webhook.eta = undefined;
+    webhook.dateStarted = undefined;
   } else if (payload.status === 'completed' && payload.artifactId) {
     const agent = github.getAgentByRepo(params.owner, params.repo);
     const response = await agent?.octokit.rest.actions.downloadArtifact({
