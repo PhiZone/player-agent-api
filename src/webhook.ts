@@ -3,8 +3,8 @@ import github from './github.js';
 import { redis } from './redis.js';
 import type { Webhook } from './schemas.js';
 import unzipper from 'unzipper';
-import AV from './leancloud.js';
 import { io } from './socketio.js';
+import { upload } from './oss/index.js';
 
 const eta = (started: Date | string, progress: number) => {
   if (!started || progress <= 0 || progress > 1) return undefined;
@@ -83,23 +83,19 @@ const extractAndUploadFiles = async (
 
   for (const file of directory.files) {
     if (file.type === 'File') {
-      const fileName = file.path.replace(/\//g, ' @ ');
+      const name = file.path.replace(/\//g, ' @ ');
       const started = new Date();
-      const lcFile = await new AV.File(fileName, await file.buffer()).save({
-        keepFileName: true,
-        onprogress: ({ loaded, total }) => {
-          const percentage = loaded / total;
-          report(key, {
-            status: 'uploading_to_oss',
-            progress: percentage,
-            eta: eta(started, percentage),
-            target
-          });
-        }
+      const url = await upload(name, await file.buffer(), (progress) => {
+        report(key, {
+          status: 'uploading_to_oss',
+          progress,
+          eta: eta(started, progress),
+          target
+        });
       });
       outputFiles.push({
-        name: fileName,
-        url: lcFile.url()
+        name,
+        url
       });
     }
   }
