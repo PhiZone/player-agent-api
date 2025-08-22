@@ -6,7 +6,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "format": "prettier --write .",
-    "lint": "prettier --check . && eslint ."
+    "lint": "eslint .",
+    "fl": "prettier --write . && eslint . --fix"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.0",
