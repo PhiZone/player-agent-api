@@ -15,11 +15,12 @@ const authenticate = (c: Context) => {
   const token = c.req.header('Authorization')?.replace('Bearer ', '');
   if (token) {
     const isPrefixed = token.includes('/');
-    const [prefix, ...rest] = token.split('/');
-    const secret = isPrefixed ? rest.join('/') : token;
+    const parts = token.split('/');
+    const prefix = isPrefixed ? parts.pop() : undefined;
+    const secret = isPrefixed ? parts.join('/') : token;
 
     const client = config.clients.find(
-      (client) => client.secret === secret && (!isPrefixed || client.prefixes.includes(prefix))
+      (client) => client.secret === secret && (!prefix || client.prefixes.includes(prefix))
     );
     return {
       client,
