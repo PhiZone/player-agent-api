@@ -1,3 +1,6 @@
-const HRID_LIST = ['Thunderstorm', 'Paradox', 'Kaleidoscope'];
+import config from '../config.json' with { type: 'json' };
 
-export const hrid = () => HRID_LIST[Math.floor(Math.random() * HRID_LIST.length)];
+export const hrid = (client?: string) => {
+  const idPool = (client && config.clients.find((c) => c.name === client)?.idPool) || config.idPool;
+  return idPool[Math.floor(Math.random() * idPool.length)];
+};

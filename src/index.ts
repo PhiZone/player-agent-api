@@ -32,7 +32,7 @@ app.openapi(NewRun, async (c) => {
   if (currentRun) {
     return c.json(currentRun, 409);
   }
-  const { objectId, runId } = await db.createRun(run, client.prefix);
+  const { objectId, runId } = await db.createRun(run, client);
   const response = await github.requestRun(run, objectId, runId);
   return c.json(response, 201);
 });

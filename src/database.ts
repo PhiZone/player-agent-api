@@ -74,12 +74,12 @@ class Database {
     });
   }
 
-  async createRun(run: RunCreate, prefix: string) {
+  async createRun(run: RunCreate, client: { name: string; prefix: string }) {
     const runsCollection = this.collection<Run>('runs');
-    const runId = hrid();
+    const runId = hrid(client.name);
     const result = await runsCollection.insertOne({
       id: runId,
-      user: `${prefix}/${run.user}`,
+      user: `${client.prefix}/${run.user}`,
       input: run.input,
       mediaOptions: run.mediaOptions,
       preferences: run.preferences,
