@@ -14,8 +14,18 @@ import { io, setupSocketIO } from './socketio.js';
 const authenticate = (c: Context) => {
   const token = c.req.header('Authorization')?.replace('Bearer ', '');
   if (token) {
-    return config.clients.find((client) => client.secret === token);
+    const [prefix, ...rest] = token.split('/');
+    const secret = rest.join('/');
+
+    const client = config.clients.find(
+      (client) => client.secret === secret && client.prefixes.includes(prefix)
+    );
+    return {
+      client,
+      prefix: prefix || client?.prefixes[0] || undefined
+    };
   }
+  return { client: undefined, prefix: undefined };
 };
 
 const app = new OpenAPIHono();
@@ -23,38 +33,38 @@ const app = new OpenAPIHono();
 app.use('/*', cors());
 
 app.openapi(NewRun, async (c) => {
-  const client = authenticate(c);
-  if (!client) {
+  const { client, prefix } = authenticate(c);
+  if (!client || !prefix) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
   const run = c.req.valid('json');
-  const currentRun = await db.getCurrentRun(run.user, client.prefix);
+  const currentRun = await db.getCurrentRun(run.user, prefix);
   if (currentRun) {
     return c.json(currentRun, 409);
   }
-  const { objectId, runId } = await db.createRun(run, client);
+  const { objectId, runId } = await db.createRun(run, { name: client.name, prefix });
   const response = await github.requestRun(run, objectId, runId);
   return c.json(response, 201);
 });
 
 app.openapi(GetRuns, async (c) => {
-  const client = authenticate(c);
-  if (!client) {
+  const { client, prefix } = authenticate(c);
+  if (!client || !prefix) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
   const query = c.req.valid('query');
-  const result = await db.getRuns(query, client.prefix);
+  const result = await db.getRuns(query, prefix);
   return c.json(result, 200);
 });
 
 app.openapi(GetRun, async (c) => {
-  const client = authenticate(c);
-  if (!client) {
+  const { client, prefix } = authenticate(c);
+  if (!client || !prefix) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
   const params = c.req.valid('param');
   const query = c.req.valid('query');
-  const result = await db.getRun(params.id, query.user, client.prefix);
+  const result = await db.getRun(params.id, query.user, prefix);
   if (!result) {
     return c.json({ error: 'Run not found' }, 404);
   }
