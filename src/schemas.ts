@@ -45,7 +45,7 @@ export const MediaOptionsSchema = z
   .object({
     frameRate: z.number().min(1).openapi({
       description: 'Frame rate',
-      example: 120
+      example: 60
     }),
     overrideResolution: z
       .array(z.number())
@@ -64,7 +64,7 @@ export const MediaOptionsSchema = z
     }),
     videoBitrate: z.number().min(1).openapi({
       description: 'Video bitrate',
-      example: 12000
+      example: 6000
     }),
     audioBitrate: z.number().min(1).openapi({
       description: 'Audio bitrate',
