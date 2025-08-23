@@ -18,29 +18,9 @@ export const setupSocketIO = (
 
   io.on('connection', (socket) => {
     console.log(`Socket ${socket.id} connected.`);
-    const joinedRooms = new Set<string>();
 
     socket.on('disconnect', () => {
       console.log(`Socket ${socket.id} disconnected.`);
-      joinedRooms.forEach((room) => {
-        io.to(room).emit('left', socket.id, io.sockets.adapter.rooms.get(room)?.size || 0);
-      });
-    });
-
-    socket.on('join', (prefix: string, user: string, hrid: string) => {
-      const room = `${prefix}/${user}/${hrid}`;
-      socket.join(room);
-      joinedRooms.add(room);
-      console.log(`Socket ${socket.id} joined ${room}.`);
-      io.to(room).emit('joined', socket.id, io.sockets.adapter.rooms.get(room)?.size || 0);
-    });
-
-    socket.on('leave', (prefix: string, user: string, hrid: string) => {
-      const room = `${prefix}/${user}/${hrid}`;
-      socket.leave(room);
-      joinedRooms.delete(room);
-      console.log(`Socket ${socket.id} left ${room}.`);
-      io.to(room).emit('left', socket.id, io.sockets.adapter.rooms.get(room)?.size || 0);
     });
   });
 };

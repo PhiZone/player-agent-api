@@ -27,7 +27,7 @@ const report = async (
     }
   });
   const { status, progress, eta, target } = webhook;
-  io.to(target).emit('message', target, status, progress, eta);
+  io.emit('message', target, status, progress, eta);
   console.log(`[Webhook] ${webhook.target}`, { status, progress, eta });
 };
 
