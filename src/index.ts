@@ -107,14 +107,17 @@ app.openapi(CancelRun, async (c) => {
   }
   const params = c.req.valid('param');
   const query = c.req.valid('query');
-  const result = await db.getRun(params.id, query.user, prefix);
-  if (!result) {
+  const run = await db.getRun(params.id, query.user, prefix);
+  if (!run) {
     return c.json({ error: 'Run not found' }, 404);
   }
-  const status = await github.cancelRun(result._id);
+  const status = await github.cancelRun(run._id);
   if (!status) {
     return c.json({ error: 'Run not initialized' }, 409);
   }
+  run.status = 'cancelled';
+  run.dateCompleted = new Date();
+  await db.updateRun(run);
   return c.newResponse(null, status);
 });
 
