@@ -124,9 +124,8 @@ export const processWebhook = async (
     webhook = {
       status: payload.status,
       progress: payload.progress,
-      eta: undefined,
-      target: `${run.user}/${run.id}`,
-      dateStarted: undefined
+      eta: payload.eta,
+      target: `${run.user}/${run.id}`
     };
     run.status = 'in_progress';
     await db.updateRun(run);
@@ -137,16 +136,7 @@ export const processWebhook = async (
     webhook.progress = payload.progress;
   }
 
-  if (payload.status === 'rendering') {
-    if (webhook.dateStarted) {
-      webhook.eta = eta(webhook.dateStarted, payload.progress || 0);
-    } else {
-      webhook.dateStarted = new Date();
-    }
-  } else if (payload.progress === 0 && webhook.dateStarted) {
-    webhook.eta = undefined;
-    webhook.dateStarted = undefined;
-  } else if (payload.status === 'completed' && payload.artifactId) {
+  if (payload.status === 'completed' && payload.artifactId) {
     const agent = github.getAgentByRepo(params.owner, params.repo);
     const response = await agent?.octokit.rest.actions.downloadArtifact({
       owner: params.owner,

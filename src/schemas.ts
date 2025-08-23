@@ -240,9 +240,6 @@ export const WebhookSchema = z
     eta: z.number().min(0).optional().openapi({
       description: 'Estimated time of accomplishment in seconds',
       example: 60
-    }),
-    dateStarted: z.date().optional().openapi({
-      description: 'Date when the run was started'
     })
   })
   .transform((data) => ({
@@ -251,8 +248,7 @@ export const WebhookSchema = z
     progress: data.progress,
     artifactId: data.artifactId || data.artifact_id,
     target: data.target || '',
-    eta: data.eta,
-    dateStarted: data.dateStarted
+    eta: data.eta
   }))
   .openapi({
     description: 'Webhook payload',
