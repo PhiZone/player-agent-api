@@ -134,6 +134,7 @@ export const processWebhook = async (
 
     webhook.status = payload.status;
     webhook.progress = payload.progress;
+    webhook.eta = payload.eta;
   }
 
   if (payload.status === 'completed' && payload.artifactId) {
