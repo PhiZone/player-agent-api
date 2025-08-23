@@ -23,8 +23,7 @@ export const setupSocketIO = (
     socket.on('disconnect', () => {
       console.log(`Socket ${socket.id} disconnected.`);
       joinedRooms.forEach((room) => {
-        const roomSize = io.sockets.adapter.rooms.get(room)?.size || 0;
-        io.to(room).emit('left', socket.id, roomSize);
+        io.to(room).emit('left', socket.id, io.sockets.adapter.rooms.get(room)?.size || 0);
       });
     });
 
@@ -34,6 +33,14 @@ export const setupSocketIO = (
       joinedRooms.add(room);
       console.log(`Socket ${socket.id} joined ${room}.`);
       io.to(room).emit('joined', socket.id, io.sockets.adapter.rooms.get(room)?.size || 0);
+    });
+
+    socket.on('leave', (prefix: string, user: string, hrid: string) => {
+      const room = `${prefix}/${user}/${hrid}`;
+      socket.leave(room);
+      joinedRooms.delete(room);
+      console.log(`Socket ${socket.id} left ${room}.`);
+      io.to(room).emit('left', socket.id, io.sockets.adapter.rooms.get(room)?.size || 0);
     });
   });
 };
