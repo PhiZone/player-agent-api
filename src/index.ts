@@ -3,7 +3,7 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import { swaggerUI } from '@hono/swagger-ui';
 import { cors } from 'hono/cors';
 import config from '../config.json' with { type: 'json' };
-import { GetRun, GetRuns, NewRun, Overview, Webhook } from './routes.js';
+import { CancelRun, GetRun, GetRuns, NewRun, Overview, Webhook } from './routes.js';
 import type { Context } from 'hono';
 import db from './database.js';
 import redis from './redis.js';
@@ -71,6 +71,24 @@ app.openapi(GetRun, async (c) => {
     return c.json({ error: 'Run not found' }, 404);
   }
   return c.json(result, 200);
+});
+
+app.openapi(CancelRun, async (c) => {
+  const { client, prefix } = authenticate(c);
+  if (!client || !prefix) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  const params = c.req.valid('param');
+  const query = c.req.valid('query');
+  const result = await db.getRun(params.id, query.user, prefix);
+  if (!result) {
+    return c.json({ error: 'Run not found' }, 404);
+  }
+  const status = await github.cancelRun(result._id);
+  if (!status) {
+    return c.json({ error: 'Run not initialized' }, 409);
+  }
+  return c.newResponse(null, status);
 });
 
 app.openapi(Webhook, async (c) => {

@@ -136,6 +136,40 @@ export const GetRun = createRoute({
   }
 });
 
+export const CancelRun = createRoute({
+  method: 'post',
+  path: '/runs/{id}/cancel',
+  request: {
+    params: z.object({
+      id: z.string().openapi({
+        description: 'Object ID of the run (or human-readable ID, if query specified)'
+      })
+    }),
+    query: z.object({
+      user: z.string().optional().openapi({
+        description: 'User identifier',
+        example: '12345678'
+      })
+    })
+  },
+  responses: {
+    202: {
+      description: 'Run canceled'
+    },
+    404: {
+      description: 'Run not found',
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      }
+    },
+    409: {
+      description: 'Conflict'
+    }
+  }
+});
+
 export const Webhook = createRoute({
   method: 'post',
   path: '/webhook/{owner}/{repo}/{id}',

@@ -137,6 +137,23 @@ export class GitHub {
 
     return { queueSize, queueTime };
   }
+
+  async cancelRun(objectId: ObjectId) {
+    const pattern = `phizone:pa:run:${objectId}:*`;
+    const key = (await redis.keys(pattern)).at(0);
+    if (!key) {
+      return undefined;
+    }
+    const parts = key.split(':');
+    const [owner, repo, runId] = parts.pop()?.split('/') || [];
+    const agent = this.getAgentByRepo(owner, repo);
+    const response = await agent?.octokit.rest.actions.cancelWorkflowRun({
+      owner,
+      repo,
+      run_id: parseInt(runId)
+    });
+    return response?.status;
+  }
 }
 
 const github = new GitHub();
