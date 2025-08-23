@@ -3,7 +3,7 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import { swaggerUI } from '@hono/swagger-ui';
 import { cors } from 'hono/cors';
 import config from '../config.json' with { type: 'json' };
-import { CancelRun, GetRun, GetRuns, NewRun, Overview, Webhook } from './routes.js';
+import { CancelRun, GetRun, GetRunProgress, GetRuns, NewRun, Overview, Webhook } from './routes.js';
 import type { Context } from 'hono';
 import db from './database.js';
 import redis from './redis.js';
@@ -71,6 +71,33 @@ app.openapi(GetRun, async (c) => {
     return c.json({ error: 'Run not found' }, 404);
   }
   return c.json(result, 200);
+});
+
+app.openapi(GetRunProgress, async (c) => {
+  const { client, prefix } = authenticate(c);
+  if (!client || !prefix) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  const params = c.req.valid('param');
+  const query = c.req.valid('query');
+  const result = await db.getRun(params.id, query.user, prefix);
+  if (!result) {
+    return c.json({ error: 'Run not found' }, 404);
+  }
+  const pattern = `phizone:pa:run:${result._id}:*`;
+  const key = (await redis.client.keys(pattern)).at(0);
+  if (!key) {
+    return c.json(
+      {
+        status: 'queued',
+        progress: 0,
+        eta: 0
+      },
+      200
+    );
+  }
+  const { status, progress, eta } = JSON.parse((await redis.client.get(key)) || '{}');
+  return c.json({ status, progress, eta }, 200);
 });
 
 app.openapi(CancelRun, async (c) => {

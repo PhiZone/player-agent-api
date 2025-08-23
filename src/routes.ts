@@ -136,6 +136,63 @@ export const GetRun = createRoute({
   }
 });
 
+export const GetRunProgress = createRoute({
+  method: 'get',
+  path: '/runs/{id}/progress',
+  request: {
+    params: z.object({
+      id: z.string().openapi({
+        description: 'Object ID of the run (or human-readable ID, if query specified)'
+      })
+    }),
+    query: z.object({
+      user: z.string().optional().openapi({
+        description: 'User identifier',
+        example: '12345678'
+      })
+    })
+  },
+  responses: {
+    200: {
+      description: 'Fetches the progress of a specific agent run',
+      content: {
+        'application/json': {
+          schema: z.object({
+            status: z.string().openapi({
+              description: 'Status of the run',
+              example: 'rendering'
+            }),
+            progress: z.number().min(0).max(1).openapi({
+              description: 'Progress of the run',
+              example: 0.5
+            }),
+            eta: z.number().nullable().openapi({
+              description: 'Estimated time in seconds until the run is completed',
+              example: 30
+            })
+          })
+        }
+      }
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      }
+    },
+    404: {
+      description: 'Run not found',
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      }
+    }
+  }
+});
+
 export const CancelRun = createRoute({
   method: 'post',
   path: '/runs/{id}/cancel',
@@ -155,6 +212,14 @@ export const CancelRun = createRoute({
   responses: {
     202: {
       description: 'Run canceled'
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      }
     },
     404: {
       description: 'Run not found',
