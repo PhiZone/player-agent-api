@@ -1,0 +1,24 @@
+runtime: nodejs
+install: npm install
+build: echo ''
+run: |
+  echo '{
+    "mongoDbUri": "$MONGODB_URI",
+    "mongoDbName": "pzp-agent",
+    "redisUrl": "$REDIS_URL_main",
+    "defaultRespack": "$DEFAULT_RESPACK",
+    "webhookUrl": "$WEBHOOK_URL",
+    "timezone": "Asia/Shanghai",
+    "useSnapshot": true,
+    "oss": {
+      "leancloud": {
+        "appId": "$LEANCLOUD_APP_ID",
+        "appKey": "$LEANCLOUD_APP_KEY",
+      }
+    },
+    "idPool": ["Thunderstorm", "Magnesium", "Kaleidoscope"],
+    "agents": '"$AGENTS"',
+    "clients": '"$CLIENTS"'
+  }' > ./config.json
+  npm run build
+  npm run start
