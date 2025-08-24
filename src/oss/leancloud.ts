@@ -1,9 +1,18 @@
 import AV from 'leancloud-storage';
 import config from '../../config.json' with { type: 'json' };
 
-const lcConfig = config.oss.leancloud;
+const lcConfig =
+  'leancloud' in config.oss && typeof config.oss.leancloud === 'object'
+    ? config.oss.leancloud
+    : undefined;
 
-if (lcConfig) {
+if (
+  lcConfig &&
+  'appId' in lcConfig &&
+  typeof lcConfig.appId === 'string' &&
+  'appKey' in lcConfig &&
+  typeof lcConfig.appKey === 'string'
+) {
   const options: { appId: string; appKey: string; serverURL?: string; masterKey?: string } = {
     appId: lcConfig.appId,
     appKey: lcConfig.appKey
