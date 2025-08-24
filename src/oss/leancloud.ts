@@ -4,11 +4,14 @@ import config from '../../config.json' with { type: 'json' };
 const lcConfig = config.oss.leancloud;
 
 if (lcConfig) {
-  AV.init({
+  const options: { appId: string; appKey: string; serverURL?: string } = {
     appId: lcConfig.appId,
-    appKey: lcConfig.appKey,
-    serverURL: lcConfig.serverURL
-  });
+    appKey: lcConfig.appKey
+  };
+  if (lcConfig.serverURL) {
+    options.serverURL = lcConfig.serverURL;
+  }
+  AV.init(options);
 }
 
 export const uploadToLeanCloud = async (
