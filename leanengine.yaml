@@ -13,7 +13,8 @@ run: |
     "oss": {
       "leancloud": {
         "appId": "'"$LEANCLOUD_APP_ID"'",
-        "appKey": "'"$LEANCLOUD_APP_KEY"'"
+        "appKey": "'"$LEANCLOUD_APP_KEY"'",
+        "masterKey": "'"$LEANCLOUD_MASTER_KEY"'"
       }
     },
     "idPool": ["Thunderstorm", "Magnesium", "Kaleidoscope"],
