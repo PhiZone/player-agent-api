@@ -20,5 +20,6 @@ run: |
     "agents": '"$AGENTS"',
     "clients": '"$CLIENTS"'
   }' > ./config.json
+  cat config.json
   npm run build
   npm run start
