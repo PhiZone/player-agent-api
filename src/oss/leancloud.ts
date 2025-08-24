@@ -8,7 +8,7 @@ if (lcConfig) {
     appId: lcConfig.appId,
     appKey: lcConfig.appKey
   };
-  if (lcConfig.serverURL) {
+  if ('serverURL' in lcConfig) {
     options.serverURL = lcConfig.serverURL;
   }
   AV.init(options);
