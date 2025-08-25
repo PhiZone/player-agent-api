@@ -142,6 +142,43 @@ export const TogglesSchema = z.object({
   })
 });
 
+export const OutputFilesSchema = z
+  .array(
+    z.object({
+      name: z.string().openapi({
+        example: '[Thunderstorm] Avantgarde [IN 16] @ 2025-08-21_03-21-25.mp4'
+      }),
+      url: z.string().url().optional().openapi({
+        example: 'https://res.example.com/output1.mp4'
+      }),
+      artifact: z
+        .object({
+          owner: z.string().openapi({
+            description: 'Owner of the hosting repository of the artifact',
+            example: 'PhiZone'
+          }),
+          repo: z.string().openapi({
+            description: 'Hosting repository of the artifact',
+            example: 'player-agent'
+          }),
+          artifactId: z.number().openapi({
+            description: 'ID of the artifact',
+            example: 12345
+          })
+        })
+        .optional()
+    })
+  )
+  .openapi({
+    description: 'List of output files',
+    example: [
+      {
+        name: '[Thunderstorm] Avantgarde [IN 16] @ 2025-08-21_03-21-25.mp4',
+        url: 'https://res.example.com/output1.mp4'
+      }
+    ]
+  });
+
 export const RunCreateSchema = z
   .object({
     input: InputSchema,
@@ -169,26 +206,7 @@ export const RunSchema = z
     mediaOptions: MediaOptionsSchema,
     preferences: PreferencesSchema,
     toggles: TogglesSchema,
-    outputFiles: z
-      .array(
-        z.object({
-          name: z.string().openapi({
-            example: '[Thunderstorm] Avantgarde [IN 16] @ 2025-08-21_03-21-25.mp4'
-          }),
-          url: z.string().url().openapi({
-            example: 'https://res.example.com/output1.mp4'
-          })
-        })
-      )
-      .openapi({
-        description: 'List of output files',
-        example: [
-          {
-            name: '[Thunderstorm] Avantgarde [IN 16] @ 2025-08-21_03-21-25.mp4',
-            url: 'https://res.example.com/output1.mp4'
-          }
-        ]
-      }),
+    outputFiles: OutputFilesSchema,
     status: z.string().openapi({
       description: 'Status of the run',
       example: 'completed'
@@ -268,5 +286,6 @@ export const ErrorSchema = z.object({
 
 export type Query = z.infer<typeof QuerySchema>;
 export type RunCreate = z.infer<typeof RunCreateSchema>;
+export type OutputFiles = z.infer<typeof OutputFilesSchema>;
 export type Run = z.infer<typeof RunSchema>;
 export type Webhook = z.infer<typeof WebhookSchema>;

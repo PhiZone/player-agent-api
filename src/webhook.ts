@@ -116,11 +116,12 @@ export const processWebhook = async (
   params: { owner: string; repo: string; id: string },
   payload: Webhook
 ) => {
-  const key = `phizone:pa:run:${params.id}:${params.owner}/${params.repo}/${payload.runId}`;
+  const { id, owner, repo } = params;
+  const key = `phizone:pa:run:${id}:${owner}/${repo}/${payload.runId}`;
   let webhook: Omit<Webhook, 'runId' | 'artifactId'>;
   const result = await redis.get(key);
   if (!result) {
-    const run = await getRun(params.id);
+    const run = await getRun(id);
     webhook = {
       status: payload.status,
       progress: payload.progress,
@@ -138,25 +139,23 @@ export const processWebhook = async (
   }
 
   if (payload.status === 'completed' && payload.artifactId) {
-    const agent = github.getAgentByRepo(params.owner, params.repo);
-    const response = await agent?.octokit.rest.actions.downloadArtifact({
-      owner: params.owner,
-      repo: params.repo,
-      artifact_id: parseInt(payload.artifactId),
-      archive_format: 'zip'
-    });
-
-    if (!response?.url) {
-      throw new Error('Unable to obtain artifact download URL');
-    }
-
-    const run = await getRun(params.id);
+    const run = await getRun(id);
 
     if (isOSSAvailable()) {
-      const zipBuffer = await downloadArtifactWithProgress(response.url, key, webhook.target);
+      const artifactUrl = await github.getArtifactUrl(owner, repo, parseInt(payload.artifactId));
+      const zipBuffer = await downloadArtifactWithProgress(artifactUrl, key, webhook.target);
       run.outputFiles = await extractAndUploadFiles(zipBuffer, key, run.id, webhook.target);
     } else {
-      run.outputFiles = [{ name: `[${run.id}] Artifact.zip`, url: response.url }];
+      run.outputFiles = [
+        {
+          name: `[${run.id}] Artifact.zip`,
+          artifact: {
+            owner: params.owner,
+            repo: params.repo,
+            artifactId: parseInt(payload.artifactId)
+          }
+        }
+      ];
     }
 
     run.status = payload.status;

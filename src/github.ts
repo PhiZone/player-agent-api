@@ -184,6 +184,21 @@ export class GitHub {
     });
     return response?.status;
   }
+
+  async getArtifactUrl(owner: string, repo: string, artifactId: number): Promise<string> {
+    const agent = github.getAgentByRepo(owner, repo);
+    const response = await agent?.octokit.rest.actions.downloadArtifact({
+      owner,
+      repo,
+      artifact_id: artifactId,
+      archive_format: 'zip'
+    });
+
+    if (!response?.url) {
+      throw new Error('Unable to obtain artifact download URL');
+    }
+    return response.url;
+  }
 }
 
 const github = new GitHub();

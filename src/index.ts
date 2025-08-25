@@ -10,6 +10,7 @@ import redis from './redis.js';
 import github from './github.js';
 import { processWebhook } from './webhook.js';
 import { io, setupSocketIO } from './socketio.js';
+import type { OutputFiles } from './schemas.js';
 
 const authenticate = (c: Context) => {
   const token = c.req.header('Authorization')?.replace('Bearer ', '');
@@ -28,6 +29,17 @@ const authenticate = (c: Context) => {
     };
   }
   return { client: undefined, prefix: undefined };
+};
+
+const transformFiles = async (files: OutputFiles) => {
+  return await Promise.all(
+    files.map(async (file) => {
+      if (file.url || !file.artifact) return file;
+      const { owner, repo, artifactId } = file.artifact;
+      const artifactUrl = await github.getArtifactUrl(owner, repo, artifactId);
+      return { ...file, url: artifactUrl };
+    })
+  );
 };
 
 const app = new OpenAPIHono();
@@ -56,6 +68,12 @@ app.openapi(GetRuns, async (c) => {
   }
   const query = c.req.valid('query');
   const result = await db.getRuns(query, prefix);
+  result.runs = await Promise.all(
+    result.runs.map(async (run) => {
+      run.outputFiles = await transformFiles(run.outputFiles);
+      return run;
+    })
+  );
   return c.json(result, 200);
 });
 
@@ -70,6 +88,7 @@ app.openapi(GetRun, async (c) => {
   if (!result) {
     return c.json({ error: 'Run not found' }, 404);
   }
+  result.outputFiles = await transformFiles(result.outputFiles);
   return c.json(result, 200);
 });
 
