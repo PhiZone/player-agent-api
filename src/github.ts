@@ -17,12 +17,19 @@ export class GitHub {
 
   constructor() {
     this.agents = config.agents.map((agent) => {
+      const { owner, repo, workflow, branch, token } = agent;
       return {
-        owner: agent.owner,
-        repo: agent.repo,
-        workflow: agent.workflow,
-        branch: agent.branch,
-        octokit: new Octokit({ auth: agent.token })
+        owner,
+        repo,
+        workflow,
+        branch,
+        octokit: new Octokit({
+          auth: token,
+          baseUrl:
+            'githubApiUrl' in config && typeof config.githubApiUrl === 'string'
+              ? config.githubApiUrl
+              : undefined
+        })
       };
     });
     console.log('[GitHub] Initialized.');

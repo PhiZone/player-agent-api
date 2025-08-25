@@ -1,4 +1,6 @@
-import { uploadToLeanCloud } from './leancloud.js';
+import { isLeanCloudInitialized, uploadToLeanCloud } from './leancloud.js';
+
+export const isOSSAvailable = () => isLeanCloudInitialized;
 
 export const upload = async (
   name: string,

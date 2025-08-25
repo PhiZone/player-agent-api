@@ -2,6 +2,7 @@
   "mongoDbUri": "mongodb://127.0.0.1:27017/",
   "mongoDbName": "pzp-agent",
   "redisUrl": "redis://127.0.0.1:6379",
+  "githubApiUrl": "https://your-optional-github-api-proxy.com",
   "defaultRespack": "https://res.example.com/your-default-respack.zip",
   "webhookUrl": "https://www.example.com/webhook",
   "timezone": "Asia/Shanghai",

@@ -1,6 +1,7 @@
 import AV from 'leancloud-storage';
 import config from '../../config.json' with { type: 'json' };
 
+export let isLeanCloudInitialized = false;
 const lcConfig =
   'leancloud' in config.oss && typeof config.oss.leancloud === 'object'
     ? config.oss.leancloud
@@ -24,6 +25,7 @@ if (
     options.masterKey = lcConfig.masterKey;
   }
   AV.init(options);
+  isLeanCloudInitialized = true;
 }
 
 export const uploadToLeanCloud = async (

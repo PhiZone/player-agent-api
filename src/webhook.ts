@@ -4,7 +4,7 @@ import { redis } from './redis.js';
 import type { Webhook } from './schemas.js';
 import unzipper from 'unzipper';
 import { io } from './socketio.js';
-import { upload } from './oss/index.js';
+import { isOSSAvailable, upload } from './oss/index.js';
 
 const eta = (started: Date | string, progress: number) => {
   if (!started || progress <= 0 || progress > 1) return undefined;
@@ -152,10 +152,13 @@ export const processWebhook = async (
 
     const run = await getRun(params.id);
 
-    const zipBuffer = await downloadArtifactWithProgress(response.url, key, webhook.target);
-    const outputFiles = await extractAndUploadFiles(zipBuffer, key, run.id, webhook.target);
+    if (isOSSAvailable()) {
+      const zipBuffer = await downloadArtifactWithProgress(response.url, key, webhook.target);
+      run.outputFiles = await extractAndUploadFiles(zipBuffer, key, run.id, webhook.target);
+    } else {
+      run.outputFiles = [{ name: `[${run.id}] Artifact.zip`, url: response.url }];
+    }
 
-    run.outputFiles = outputFiles;
     run.status = payload.status;
     run.dateCompleted = new Date();
     await db.updateRun(run);
