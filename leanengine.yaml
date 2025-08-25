@@ -6,6 +6,7 @@ run: |
     "mongoDbUri": "'"$MONGODB_URI"'",
     "mongoDbName": "pzp-agent",
     "redisUrl": "'"$REDIS_URL_main"'",
+    "githubApiUrl": "'"$GITHUB_API_URL"'",
     "defaultRespack": "'"$DEFAULT_RESPACK"'",
     "webhookUrl": "'"$WEBHOOK_URL"'",
     "timezone": "Asia/Shanghai",
