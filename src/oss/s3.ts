@@ -14,7 +14,7 @@ let s3: S3Client | undefined = undefined;
 export let isS3Initialized = false;
 
 const s3Config: S3Config | undefined =
-  's3' in config.oss && typeof config.oss.s3 === 'object' ? config.oss.s3 : undefined;
+  's3' in config.oss && typeof config.oss.s3 === 'object' ? (config.oss.s3 as S3Config) : undefined;
 
 if (s3Config) {
   s3 = new S3Client({
