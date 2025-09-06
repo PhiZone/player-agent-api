@@ -8,6 +8,8 @@ interface S3Config {
   bucket: string;
   accessKeyId: string;
   secretAccessKey: string;
+  bucketEndpoint: boolean;
+  forcePathStyle: boolean;
 }
 
 let s3: S3Client | undefined = undefined;
@@ -20,7 +22,8 @@ if (s3Config) {
   s3 = new S3Client({
     region: s3Config.region,
     endpoint: s3Config.endpoint,
-    forcePathStyle: true,
+    bucketEndpoint: s3Config.bucketEndpoint,
+    forcePathStyle: s3Config.forcePathStyle,
     credentials: {
       accessKeyId: s3Config.accessKeyId,
       secretAccessKey: s3Config.secretAccessKey
@@ -57,5 +60,8 @@ export const uploadToS3 = async (
   await upload.done();
   onProgress(1); // Ensure we reach 100%
 
-  return `${s3Config.endpoint}/${s3Config.bucket}/${name}`;
+  const baseUrl = s3Config.bucketEndpoint
+    ? s3Config.bucket
+    : `${s3Config.endpoint}/${s3Config.bucket}`;
+  return `${baseUrl}/${encodeURIComponent(name)}`;
 };
