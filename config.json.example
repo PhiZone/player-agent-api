@@ -9,11 +9,13 @@
   "useSnapshot": true,
   "oss": {
     "s3": {
-      "endpoint": "s3.example.amazonaws.com",
+      "endpoint": "https://s3.example.amazonaws.com",
       "region": "cn-example-2",
-      "bucket": "your-bucket-name",
+      "bucket": "your-bucket-name-or-endpoint", // If bucketEndpoint is true, this should be the full URL
       "accessKeyId": "your-access-key-id",
-      "secretAccessKey": "your-secret-access-key"
+      "secretAccessKey": "your-secret-access-key",
+      "bucketEndpoint": false,
+      "forcePathStyle": true
     },
     "leancloud": {
       "appId": "your-app-id",
