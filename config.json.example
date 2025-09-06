@@ -8,6 +8,13 @@
   "timezone": "Asia/Shanghai",
   "useSnapshot": true,
   "oss": {
+    "s3": {
+      "endpoint": "s3.example.amazonaws.com",
+      "region": "cn-example-2",
+      "bucket": "your-bucket-name",
+      "accessKeyId": "your-access-key-id",
+      "secretAccessKey": "your-secret-access-key"
+    },
     "leancloud": {
       "appId": "your-app-id",
       "appKey": "your-app-key",
