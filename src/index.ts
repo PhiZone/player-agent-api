@@ -17,7 +17,7 @@ const authenticate = (c: Context) => {
   if (token) {
     const isPrefixed = token.includes('/');
     const parts = token.split('/');
-    const prefix = isPrefixed ? parts.pop() : undefined;
+    const prefix = isPrefixed ? parts.shift() : undefined;
     const secret = isPrefixed ? parts.join('/') : token;
 
     const client = config.clients.find(
