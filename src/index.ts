@@ -131,13 +131,13 @@ app.openapi(CancelRun, async (c) => {
     return c.json({ error: 'Run not found' }, 404);
   }
   const status = await github.cancelRun(run._id);
-  if (!status) {
+  if (!status && run.status !== 'in_progress') {
     return c.json({ error: 'Run not initialized' }, 409);
   }
   run.status = 'cancelled';
   run.dateCompleted = new Date();
   await db.updateRun(run);
-  return c.newResponse(null, status);
+  return c.newResponse(null, 202);
 });
 
 app.openapi(Webhook, async (c) => {
