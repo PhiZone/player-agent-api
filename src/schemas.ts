@@ -188,6 +188,14 @@ export const RunCreateSchema = z
     user: z.string().openapi({
       description: 'User identifier',
       example: '12345678'
+    }),
+    title: z.string().optional().openapi({
+      description: 'Optional title override for the run',
+      example: 'Custom Title'
+    }),
+    level: z.string().optional().openapi({
+      description: 'Optional level override for the run',
+      example: 'IN 16'
     })
   })
   .openapi('RunCreate');
@@ -216,6 +224,14 @@ export const RunSchema = z
     }),
     dateCompleted: z.date().optional().openapi({
       description: 'Date when the run was completed'
+    }),
+    title: z.string().optional().openapi({
+      description: 'Optional title override for the run',
+      example: 'Custom Title'
+    }),
+    level: z.string().optional().openapi({
+      description: 'Optional level override for the run',
+      example: 'IN 16'
     })
   })
   .openapi('Run');
