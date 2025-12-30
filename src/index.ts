@@ -52,10 +52,21 @@ app.openapi(NewRun, async (c) => {
     return c.json({ error: 'Unauthorized' }, 401);
   }
   const run = c.req.valid('json');
-  const currentRun = await db.getCurrentRun(run.user, prefix);
-  if (currentRun) {
-    return c.json(currentRun, 409);
+  
+  // Check concurrency limit
+  const concurrency = client.concurrency ?? 1;
+  const hasLimit = concurrency > 0;
+  
+  if (hasLimit) {
+    const incompleteRunCount = await db.countIncompleteRuns(run.user, prefix);
+    if (incompleteRunCount >= concurrency) {
+      const currentRun = await db.getCurrentRun(run.user, prefix);
+      if (currentRun) {
+        return c.json(currentRun, 409);
+      }
+    }
   }
+  
   const { objectId, runId } = await db.createRun(run, { name: client.name, prefix });
   const { queueSize, queueTime } = await github.requestRun(run, objectId, runId);
   return c.json({ objectId, runId, prefix, queueSize, queueTime }, 201);

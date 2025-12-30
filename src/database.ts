@@ -75,6 +75,14 @@ class Database {
     });
   }
 
+  async countIncompleteRuns(user: string, prefix: string) {
+    const runsCollection = this.collection<Run>('runs');
+    return await runsCollection.countDocuments({
+      user: `${prefix}/${user}`,
+      dateCompleted: { $exists: false }
+    });
+  }
+
   async createRun(run: RunCreate, client: { name: string; prefix: string }) {
     const runsCollection = this.collection<Run>('runs');
     const runId = hrid(client.name);
