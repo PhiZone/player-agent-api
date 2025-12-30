@@ -75,6 +75,12 @@ class Database {
     });
   }
 
+  /**
+   * Counts the number of incomplete runs for a user
+   * @param user - User identifier
+   * @param prefix - Client prefix
+   * @returns Number of runs without a dateCompleted field
+   */
   async countIncompleteRuns(user: string, prefix: string) {
     const runsCollection = this.collection<Run>('runs');
     return await runsCollection.countDocuments({

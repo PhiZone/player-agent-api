@@ -58,10 +58,14 @@ app.openapi(NewRun, async (c) => {
   const hasLimit = concurrency > 0;
   
   if (hasLimit) {
-    const incompleteRunCount = await db.countIncompleteRuns(run.user, prefix);
+    // Run both database queries concurrently for better performance
+    const [incompleteRunCount, currentRun] = await Promise.all([
+      db.countIncompleteRuns(run.user, prefix),
+      db.getCurrentRun(run.user, prefix)
+    ]);
+    
     if (incompleteRunCount >= concurrency) {
-      // Concurrency limit reached, return one of the existing runs
-      const currentRun = await db.getCurrentRun(run.user, prefix);
+      // Concurrency limit reached, return one of the existing runs if available
       if (currentRun) {
         return c.json(currentRun, 409);
       }
