@@ -45,6 +45,7 @@
       "name": "Soruto",
       "prefixes": ["qq"],
       "secret": "your-secret",
+      "concurrency": 1,
       "idPool": ["Salt", "Acid", "Milk", "Ras", "Otohime", "Chiffon", "Shama"]
     }
   ]
