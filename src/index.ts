@@ -52,10 +52,32 @@ app.openapi(NewRun, async (c) => {
     return c.json({ error: 'Unauthorized' }, 401);
   }
   const run = c.req.valid('json');
-  const currentRun = await db.getCurrentRun(run.user, prefix);
-  if (currentRun) {
-    return c.json(currentRun, 409);
+  
+  // Check concurrency limit
+  const concurrency = client.concurrency ?? 1;
+  const hasLimit = concurrency > 0;
+  
+  if (hasLimit) {
+    // Run both database queries concurrently for better performance
+    const [incompleteRunCount, currentRun] = await Promise.all([
+      db.countIncompleteRuns(run.user, prefix),
+      db.getCurrentRun(run.user, prefix)
+    ]);
+    
+    if (incompleteRunCount >= concurrency) {
+      // Concurrency limit reached, return one of the existing runs if available
+      if (currentRun) {
+        return c.json(currentRun, 409);
+      }
+      // If no run found, they all just completed (race condition)
+      // Allow the new run to be created
+    }
+    // Note: There is a small race condition window between checking the count
+    // and creating the run. Multiple simultaneous requests from the same user
+    // could theoretically exceed the limit briefly. This is acceptable for most
+    // use cases and would require distributed locking or transactions to fix properly.
   }
+  
   const { objectId, runId } = await db.createRun(run, { name: client.name, prefix });
   const { queueSize, queueTime } = await github.requestRun(run, objectId, runId);
   return c.json({ objectId, runId, prefix, queueSize, queueTime }, 201);
