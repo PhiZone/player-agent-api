@@ -68,6 +68,10 @@ app.openapi(NewRun, async (c) => {
       // If no run found, they all just completed (race condition)
       // Allow the new run to be created
     }
+    // Note: There is a small race condition window between checking the count
+    // and creating the run. Multiple simultaneous requests from the same user
+    // could theoretically exceed the limit briefly. This is acceptable for most
+    // use cases and would require distributed locking or transactions to fix properly.
   }
   
   const { objectId, runId } = await db.createRun(run, { name: client.name, prefix });
