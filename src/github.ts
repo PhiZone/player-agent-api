@@ -140,8 +140,8 @@ export class GitHub {
         webhookUrl: `${config.webhookUrl}/${agent.owner}/${agent.repo}/${objectId}`,
         timezone: config.timezone,
         useSnapshot: config.useSnapshot,
-        ...(run.title && { title: run.title }),
-        ...(run.level && { level: run.level })
+        ...(run.input.title && { title: run.input.title }),
+        ...(run.input.level && { level: run.input.level })
       }
     });
     console.log(`[GitHub] Requested run ${hrid} on ${agent.owner}/${agent.repo}`);

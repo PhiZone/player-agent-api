@@ -87,9 +87,7 @@ class Database {
       toggles: run.toggles,
       outputFiles: [],
       status: 'queued',
-      dateCreated: new Date(),
-      ...(run.title && { title: run.title }),
-      ...(run.level && { level: run.level })
+      dateCreated: new Date()
     });
     return {
       objectId: result.insertedId,

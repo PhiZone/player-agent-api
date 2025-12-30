@@ -38,6 +38,14 @@ export const InputSchema = z.object({
   respack: z.string().optional().openapi({
     description: 'Resource pack file URL',
     example: 'https://res.example.com/respack.zip'
+  }),
+  title: z.string().optional().openapi({
+    description: 'Optional title override for the run',
+    example: 'Custom Title'
+  }),
+  level: z.string().optional().openapi({
+    description: 'Optional level override for the run',
+    example: 'IN 16'
   })
 });
 
@@ -188,14 +196,6 @@ export const RunCreateSchema = z
     user: z.string().openapi({
       description: 'User identifier',
       example: '12345678'
-    }),
-    title: z.string().optional().openapi({
-      description: 'Optional title override for the run',
-      example: 'Custom Title'
-    }),
-    level: z.string().optional().openapi({
-      description: 'Optional level override for the run',
-      example: 'IN 16'
     })
   })
   .openapi('RunCreate');
