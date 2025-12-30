@@ -60,10 +60,13 @@ app.openapi(NewRun, async (c) => {
   if (hasLimit) {
     const incompleteRunCount = await db.countIncompleteRuns(run.user, prefix);
     if (incompleteRunCount >= concurrency) {
+      // Concurrency limit reached, return one of the existing runs
       const currentRun = await db.getCurrentRun(run.user, prefix);
       if (currentRun) {
         return c.json(currentRun, 409);
       }
+      // If no run found, they all just completed (race condition)
+      // Allow the new run to be created
     }
   }
   
