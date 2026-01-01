@@ -126,7 +126,10 @@ export class GitHub {
         mediaOptions: JSON.stringify({ ...run.mediaOptions, vsync: true }),
         preferences: JSON.stringify({
           ...run.preferences,
-          aspectRatio: null
+          aspectRatio: null,
+          goodJudgment: 160,
+          perfectJudgment: 80,
+          timeScale: 1
         }),
         toggles: JSON.stringify({
           ...run.toggles,
