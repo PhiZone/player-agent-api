@@ -150,9 +150,13 @@ app.openapi(CancelRun, async (c) => {
   if (!run) {
     return c.json({ error: 'Run not found' }, 404);
   }
-  const status = await github.cancelRun(run._id);
-  if (!status && run.status !== 'in_progress') {
-    return c.json({ error: 'Run not initialized' }, 409);
+  try {
+    const status = await github.cancelRun(run._id);
+    if (!status && run.status !== 'in_progress') {
+      return c.json({ error: 'Run not initialized' }, 409);
+    }
+  } catch (error) {
+    console.error('Error cancelling run on GitHub:', error);
   }
   run.status = 'cancelled';
   run.dateCompleted = new Date();
