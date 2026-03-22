@@ -18,6 +18,7 @@ const eta = (started: Date | string, progress: number) => {
 
 const report = async (
   key: string,
+  id: string,
   webhook: Pick<Webhook, 'status' | 'progress' | 'eta' | 'target'> & Partial<Webhook>
 ) => {
   await redis.set(key, JSON.stringify(webhook), {
@@ -27,13 +28,14 @@ const report = async (
     }
   });
   const { status, progress, eta, target } = webhook;
-  io.emit('message', target, status, progress, eta);
+  io.emit('message', target, status, progress, eta, id);
   console.log(`[Webhook] ${webhook.target}`, { status, progress, eta });
 };
 
 const downloadArtifactWithProgress = async (
   url: string,
   key: string,
+  id: string,
   target: string
 ): Promise<Buffer> => {
   const started = new Date();
@@ -61,7 +63,7 @@ const downloadArtifactWithProgress = async (
 
     if (contentLength > 0) {
       const progress = receivedLength / contentLength;
-      await report(key, {
+      await report(key, id, {
         status: 'downloading_artifact',
         progress,
         eta: eta(started, progress),
@@ -76,6 +78,7 @@ const downloadArtifactWithProgress = async (
 const extractAndUploadFiles = async (
   zipBuffer: Buffer,
   key: string,
+  id: string,
   hrid: string,
   target: string
 ): Promise<Array<{ name: string; url: string }>> => {
@@ -87,7 +90,7 @@ const extractAndUploadFiles = async (
       const name = `[${hrid}] ${file.path.replace(/\//g, ' @ ')}`;
       const started = new Date();
       const url = await upload(name, await file.buffer(), (progress) => {
-        report(key, {
+        report(key, id, {
           status: 'uploading_to_oss',
           progress,
           eta: eta(started, progress),
@@ -143,8 +146,8 @@ export const processWebhook = async (
 
     if (isOSSAvailable()) {
       const artifactUrl = await github.getArtifactUrl(owner, repo, parseInt(payload.artifactId));
-      const zipBuffer = await downloadArtifactWithProgress(artifactUrl, key, webhook.target);
-      run.outputFiles = await extractAndUploadFiles(zipBuffer, key, run.id, webhook.target);
+      const zipBuffer = await downloadArtifactWithProgress(artifactUrl, key, id, webhook.target);
+      run.outputFiles = await extractAndUploadFiles(zipBuffer, key, id, run.id, webhook.target);
     } else {
       run.outputFiles = [
         {
@@ -168,5 +171,5 @@ export const processWebhook = async (
     await db.updateRun(run);
   }
 
-  await report(key, webhook);
+  await report(key, id, webhook);
 };
