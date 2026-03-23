@@ -99,6 +99,7 @@ class Database {
       mediaOptions: run.mediaOptions,
       preferences: run.preferences,
       toggles: run.toggles,
+      renderBackend: run.renderBackend,
       outputFiles: [],
       status: 'queued',
       dateCreated: new Date()

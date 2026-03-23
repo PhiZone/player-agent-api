@@ -193,6 +193,15 @@ export const RunCreateSchema = z
     mediaOptions: MediaOptionsSchema,
     preferences: PreferencesSchema,
     toggles: TogglesSchema,
+    renderBackend: z
+      .enum(['native', 'browser-tauri-ws-windows'])
+      .optional()
+      .default('native')
+      .openapi({
+        description:
+          'Rendering backend mode. Use browser-tauri-ws-windows to run browser rendering via Tauri websocket backend on Windows runners.',
+        example: 'native'
+      }),
     user: z.string().openapi({
       description: 'User identifier',
       example: '12345678'
@@ -214,6 +223,14 @@ export const RunSchema = z
     mediaOptions: MediaOptionsSchema,
     preferences: PreferencesSchema,
     toggles: TogglesSchema,
+    renderBackend: z
+      .enum(['native', 'browser-tauri-ws-windows'])
+      .optional()
+      .default('native')
+      .openapi({
+        description: 'Rendering backend mode selected for this run',
+        example: 'native'
+      }),
     outputFiles: OutputFilesSchema,
     status: z.string().openapi({
       description: 'Status of the run',

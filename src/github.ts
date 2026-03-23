@@ -123,6 +123,7 @@ export class GitHub {
           ...run.input.chartFiles,
           ...[run.input.respack || config.defaultRespack]
         ]),
+        renderBackend: run.renderBackend || 'native',
         mediaOptions: JSON.stringify({ ...run.mediaOptions, vsync: true }),
         preferences: JSON.stringify({
           ...run.preferences,
